@@ -18,7 +18,7 @@ const Underline = styled.span`
 
 const ShortenerTitle = () => (
   <Title>
-    Kutt your links <Underline>shorter</Underline>.
+    URL shortener for <Underline><a href="https://www.mypad.in">MyPad</a></Underline>.
   </Title>
 );
 
