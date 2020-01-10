@@ -11,7 +11,7 @@ const TermsPage = () => (
       <h3>Kutt Terms of Service</h3>
       <p>
         By accessing the website at{" "}
-        <a href="https://kutt.it">https://kutt.it</a>, you are agreeing to be
+        <a href="https://l.mypad.in">https://l.mypad.in</a>, you are agreeing to be
         bound by these terms of service, all applicable laws and regulations,
         and agree that you are responsible for compliance with any applicable
         local laws. If you do not agree with any of these terms, you are

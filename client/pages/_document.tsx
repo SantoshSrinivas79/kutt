@@ -29,7 +29,7 @@ class AppDocument extends Document<Props> {
           />
           <meta
             name="description"
-            content="Kutt.it is a free and open source URL shortener with custom domains and stats."
+            content="l.mypad.in is a free and open source URL shortener with custom domains and stats."
           />
           <link
             href="https://fonts.googleapis.com/css?family=Nunito:300,400,700"
@@ -44,23 +44,23 @@ class AppDocument extends Document<Props> {
           <meta name="theme-color" content="#f3f3f3" />
 
           <meta property="fb:app_id" content="123456789" />
-          <meta property="og:url" content="https://kutt.it" />
+          <meta property="og:url" content="https://l.mypad.in" />
           <meta property="og:type" content="website" />
-          <meta property="og:title" content="Kutt.it" />
-          <meta property="og:image" content="https://kutt.it/images/card.png" />
+          <meta property="og:title" content="l.mypad.in" />
+          <meta property="og:image" content="https://l.mypad.in/images/card.png" />
           <meta
             property="og:description"
             content="Free & Open Source Modern URL Shortener"
           />
-          <meta name="twitter:url" content="https://kutt.it" />
-          <meta name="twitter:title" content="Kutt.it" />
+          <meta name="twitter:url" content="https://l.mypad.in" />
+          <meta name="twitter:title" content="l.mypad.in" />
           <meta
             name="twitter:description"
             content="Free & Open Source Modern URL Shortener"
           />
           <meta
             name="twitter:image"
-            content="https://kutt.it/images/card.png"
+            content="https://l.mypad.in/images/card.png"
           />
 
           {this.props.styleTags}
