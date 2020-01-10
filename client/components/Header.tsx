@@ -100,8 +100,8 @@ const Header: FC = () => {
               if (window.location.pathname !== "/") Router.push("/");
             }}
           >
-            <img src="/images/logo.svg" alt="" />
-            Kutt.it
+            <img src="/images/beaker.svg" alt="" />
+            MyPad.in
           </a>
         </LogoImage>
         {!isMobile && (
@@ -116,13 +116,13 @@ const Header: FC = () => {
           >
             <Li>
               <ALink
-                href="//github.com/thedevs-network/kutt"
+                href="//www.mypad.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="GitHub"
+                title="Home"
                 fontSize={[14, 16]}
               >
-                GitHub
+                Home
               </ALink>
             </Li>
             <Li>

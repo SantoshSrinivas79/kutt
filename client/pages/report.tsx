@@ -57,7 +57,7 @@ const ReportPage = () => {
         >
           <TextInput
             {...text("url")}
-            placeholder="kutt.it/example"
+            placeholder="l.mypad.in/example"
             height={[44, 54]}
             width={[1, 1 / 2]}
             flex="0 0 auto"
