@@ -1,23 +1,16 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "jsx": "preserve",
-    "lib": ["dom", "es2017"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "preserveConstEnums": true,
-    "removeComments": false,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "target": "esnext",
-    "typeRoots": ["./node_modules/@types"],
+		"target": "es2018",
+		"module": "commonjs",
+		"sourceMap": true,
+		"outDir": "production-server",
+		"noUnusedLocals": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"noEmit": false,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true    
+    "experimentalDecorators": true,		
+		"strict": false
   },
+	"include": ["global.d.ts", "server"]
 }

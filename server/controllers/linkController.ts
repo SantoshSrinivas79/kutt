@@ -36,7 +36,7 @@ const dnsLookup = promisify(dns.lookup);
 const generateId = async () => {
   const address = generate(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-    6
+    Number(process.env.LINK_LENGTH) || 6
   );
   const link = await findLink({ address });
   if (!link) return address;
@@ -370,7 +370,7 @@ export const ban: Handler = async (req, res) => {
 
   const link = await findLink({ address: req.body.id, domain_id: null });
 
-  if (!link) return res.status(400).json({ error: "Couldn't find the link." });
+  if (!link) return res.status(400).json({ error: "Link does not exist." });
 
   if (link.banned) {
     return res.status(200).json({ message: "Link was banned already." });
