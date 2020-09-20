@@ -1,11 +1,20 @@
+type Raw = import("knex").Raw;
+
+type Match<T> = {
+  [K in keyof T]?: T[K] | [">" | ">=" | "<=" | "<", T[K]];
+};
+
 interface User {
-  id: number;
   apikey?: string;
-  banned: boolean;
   banned_by_id?: number;
+  banned: boolean;
+  change_email_address?: string;
+  change_email_expires?: string;
+  change_email_token?: string;
   cooldowns?: string[];
   created_at: string;
   email: string;
+  id: number;
   password: string;
   reset_password_expires?: string;
   reset_password_token?: string;
@@ -24,6 +33,7 @@ interface UserJoined extends User {
 
 interface Domain {
   id: number;
+  uuid: string;
   address: string;
   banned: boolean;
   banned_by_id?: number;
@@ -31,6 +41,18 @@ interface Domain {
   homepage?: string;
   updated_at: string;
   user_id?: number;
+}
+
+interface DomainSanitized {
+  id: string;
+  uuid: undefined;
+  address: string;
+  banned: boolean;
+  banned_by_id?: undefined;
+  created_at: string;
+  homepage?: string;
+  updated_at: string;
+  user_id?: undefined;
 }
 
 interface Host {
@@ -50,16 +72,35 @@ interface IP {
 }
 
 interface Link {
-  id: number;
   address: string;
-  banned: boolean;
   banned_by_id?: number;
+  banned: boolean;
   created_at: string;
+  description?: string;
   domain_id?: number;
+  expire_in: string;
+  id: number;
   password?: string;
   target: string;
   updated_at: string;
   user_id?: number;
+  uuid: string;
+  visit_count: number;
+}
+
+interface LinkSanitized {
+  address: string;
+  banned_by_id?: undefined;
+  banned: boolean;
+  created_at: string;
+  domain_id?: undefined;
+  id: string;
+  link: string;
+  password: boolean;
+  target: string;
+  updated_at: string;
+  user_id?: undefined;
+  uuid?: undefined;
   visit_count: number;
 }
 

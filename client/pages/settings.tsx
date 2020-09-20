@@ -1,25 +1,20 @@
-import { Flex } from "reflexbox/styled-components";
-import React, { useEffect } from "react";
 import { NextPage } from "next";
+import React from "react";
 
+import SettingsDeleteAccount from "../components/Settings/SettingsDeleteAccount";
+import SettingsChangeEmail from "../components/Settings/SettingsChangeEmail";
 import SettingsPassword from "../components/Settings/SettingsPassword";
 import SettingsDomain from "../components/Settings/SettingsDomain";
-import SettingsBan from "../components/Settings/SettingsBan";
 import SettingsApi from "../components/Settings/SettingsApi";
-import { useStoreState, useStoreActions } from "../store";
 import AppWrapper from "../components/AppWrapper";
 import { H1, Span } from "../components/Text";
 import Divider from "../components/Divider";
-import Footer from "../components/Footer";
 import { Col } from "../components/Layout";
+import Footer from "../components/Footer";
+import { useStoreState } from "../store";
 
-const SettingsPage: NextPage = props => {
-  const { email, isAdmin } = useStoreState(s => s.auth);
-  const getSettings = useStoreActions(s => s.settings.getSettings);
-
-  useEffect(() => {
-    getSettings();
-  }, [false]);
+const SettingsPage: NextPage = () => {
+  const email = useStoreState(s => s.auth.email);
 
   return (
     <AppWrapper>
@@ -32,17 +27,15 @@ const SettingsPage: NextPage = props => {
           .
         </H1>
         <Divider mt={4} mb={48} />
-        {isAdmin && (
-          <>
-            <SettingsBan />
-            <Divider mt={4} mb={48} />
-          </>
-        )}
         <SettingsDomain />
+        <Divider mt={4} mb={48} />
+        <SettingsApi />
         <Divider mt={4} mb={48} />
         <SettingsPassword />
         <Divider mt={4} mb={48} />
-        <SettingsApi />
+        <SettingsChangeEmail />
+        <Divider mt={4} mb={48} />
+        <SettingsDeleteAccount />
       </Col>
       <Footer />
     </AppWrapper>

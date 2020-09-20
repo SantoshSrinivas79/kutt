@@ -5,16 +5,16 @@ import axios from "axios";
 
 import { getAxiosConfig } from "../../utils";
 import { useMessage } from "../../hooks";
-import TextInput from "../TextInput";
-import { API } from "../../consts";
+import { TextInput } from "../Input";
+import { APIv2 } from "../../consts";
 import { Button } from "../Button";
-import Icon from "../Icon";
 import Text, { H2 } from "../Text";
 import { Col } from "../Layout";
+import Icon from "../Icon";
 
 const SettingsPassword: FC = () => {
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useMessage();
+  const [message, setMessage] = useMessage(2000);
   const [formState, { password, label }] = useFormState<{ password: string }>(
     null,
     { withIds: true }
@@ -30,7 +30,7 @@ const SettingsPassword: FC = () => {
     setMessage();
     try {
       const res = await axios.post(
-        API.CHANGE_PASSWORD,
+        APIv2.AuthChangePassword,
         formState.values,
         getAxiosConfig()
       );
@@ -55,7 +55,7 @@ const SettingsPassword: FC = () => {
         fontSize={[15, 16]}
         bold
       >
-        New password
+        New password:
       </Text>
       <Flex as="form" onSubmit={onSubmit}>
         <TextInput
@@ -68,6 +68,7 @@ const SettingsPassword: FC = () => {
               }
             }
           })}
+          autocomplete="off"
           placeholder="New password..."
           width={[1, 2 / 3]}
           mr={3}

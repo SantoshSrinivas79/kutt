@@ -1,17 +1,22 @@
 import App, { AppContext } from "next/app";
 import { StoreProvider } from "easy-peasy";
+import getConfig from "next/config";
 import Router from "next/router";
 import decode from "jwt-decode";
 import cookie from "js-cookie";
 import Head from "next/head";
 import React from "react";
 
-import { initGA, logPageView } from "../helpers/analytics";
+import { initGA, logPageView , initSentry } from "../helpers/analytics";
 import { initializeStore } from "../store";
 import { TokenPayload } from "../types";
-import AppWrapper from "../components/AppWrapper";
 
 const isProd = process.env.NODE_ENV === "production";
+const { publicRuntimeConfig } = getConfig();
+
+if (isProd) {
+  initSentry();
+};
 
 // TODO: types
 class MyApp extends App<any> {
@@ -44,8 +49,11 @@ class MyApp extends App<any> {
   componentDidMount() {
     const { loading, auth } = this.store.dispatch;
     const token = cookie.get("token");
+    const isVerifyEmailPage =
+      typeof window !== "undefined" &&
+      window.location.pathname.includes("verify-email");
 
-    if (token) {
+    if (token && !isVerifyEmailPage) {
       auth.renew().catch(() => {
         auth.logout();
       });
@@ -73,7 +81,9 @@ class MyApp extends App<any> {
     return (
       <>
         <Head>
-          <title>l.mypad.in | URL shortener for MyPad.in</title>
+          <title>
+            {publicRuntimeConfig.SITE_NAME} | Modern Open Source URL shortener.
+          </title>
         </Head>
         <StoreProvider store={this.store}>
           <Component {...pageProps} />

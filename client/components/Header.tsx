@@ -1,14 +1,18 @@
 import { Flex } from "reflexbox/styled-components";
+import getConfig from "next/config";
 import React, { FC } from "react";
 import Router from "next/router";
 import useMedia from "use-media";
 import Link from "next/link";
 
+import { DISALLOW_REGISTRATION } from "../consts";
 import { useStoreState } from "../store";
 import styled from "styled-components";
 import { RowCenterV } from "./Layout";
 import { Button } from "./Button";
 import ALink from "./ALink";
+
+const { publicRuntimeConfig } = getConfig();
 
 const Li = styled(Flex).attrs({ ml: [12, 24, 32] })`
   a {
@@ -52,8 +56,14 @@ const Header: FC = () => {
   const login = !isAuthenticated && (
     <Li>
       <Link href="/login">
-        <ALink href="/login" title="login / signup" forButton>
-          <Button height={[32, 40]}>Login / Sign up</Button>
+        <ALink
+          href="/login"
+          title={!DISALLOW_REGISTRATION ? "login / signup" : "login"}
+          forButton
+        >
+          <Button height={[32, 40]}>
+            {!DISALLOW_REGISTRATION ? "Log in / Sign up" : "Log in"}
+          </Button>
         </ALink>
       </Link>
     </Li>
@@ -100,8 +110,8 @@ const Header: FC = () => {
               if (window.location.pathname !== "/") Router.push("/");
             }}
           >
-            <img src="/images/beaker.svg" alt="" />
-            MyPad.in
+            <img src="/images/logo.svg" alt="" />
+            {publicRuntimeConfig.SITE_NAME}
           </a>
         </LogoImage>
         {!isMobile && (
@@ -116,13 +126,13 @@ const Header: FC = () => {
           >
             <Li>
               <ALink
-                href="//www.mypad.in"
+                href="//github.com/thedevs-network/kutt"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Home"
+                title="GitHub"
                 fontSize={[14, 16]}
               >
-                Home
+                GitHub
               </ALink>
             </Li>
             <Li>

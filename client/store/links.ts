@@ -3,19 +3,20 @@ import axios from "axios";
 import query from "query-string";
 
 import { getAxiosConfig } from "../utils";
-import { API } from "../consts";
-import { string } from "prop-types";
+import { API, APIv2 } from "../consts";
 
 export interface Link {
-  id: number;
+  id: string;
   address: string;
   banned: boolean;
   banned_by_id?: number;
   created_at: string;
-  shortLink: string;
+  link: string;
   domain?: string;
   domain_id?: number;
   password?: string;
+  description?: string;
+  expire_in?: string;
   target: string;
   updated_at: string;
   user_id?: number;
@@ -26,19 +27,39 @@ export interface NewLink {
   target: string;
   customurl?: string;
   password?: string;
+  domain?: string;
   reuse?: boolean;
   reCaptchaToken?: string;
 }
 
+export interface BanLink {
+  id: string;
+  host?: boolean;
+  domain?: boolean;
+  user?: boolean;
+  userLinks?: boolean;
+}
+
+export interface EditLink {
+  id: string;
+  target: string;
+  address: string;
+  description?: string;
+  expire_in?: string;
+}
+
 export interface LinksQuery {
-  count?: string;
-  page?: string;
-  search?: string;
+  limit: string;
+  skip: string;
+  search: string;
+  all: boolean;
 }
 
 export interface LinksListRes {
-  list: Link[];
-  countAll: number;
+  data: Link[];
+  total: number;
+  limit: number;
+  skip: number;
 }
 
 export interface Links {
@@ -50,7 +71,10 @@ export interface Links {
   get: Thunk<Links, LinksQuery>;
   add: Action<Links, Link>;
   set: Action<Links, LinksListRes>;
-  deleteOne: Thunk<Links, { id: string; domain?: string }>;
+  update: Action<Links, Partial<Link>>;
+  remove: Thunk<Links, string>;
+  edit: Thunk<Links, EditLink>;
+  ban: Thunk<Links, BanLink>;
   setLoading: Action<Links, boolean>;
 }
 
@@ -60,30 +84,57 @@ export const links: Links = {
   total: 0,
   loading: true,
   submit: thunk(async (actions, payload) => {
-    const res = await axios.post(API.SUBMIT, payload, getAxiosConfig());
+    const data = Object.fromEntries(
+      Object.entries(payload).filter(([, value]) => value !== "")
+    );
+    const res = await axios.post(APIv2.Links, data, getAxiosConfig());
     actions.add(res.data);
     return res.data;
   }),
   get: thunk(async (actions, payload) => {
     actions.setLoading(true);
     const res = await axios.get(
-      `${API.GET_LINKS}?${query.stringify(payload)}`,
+      `${APIv2.Links}?${query.stringify(payload)}`,
       getAxiosConfig()
     );
     actions.set(res.data);
     actions.setLoading(false);
     return res.data;
   }),
-  deleteOne: thunk(async (actions, payload) => {
-    await axios.post(API.DELETE_LINK, payload, getAxiosConfig());
+  remove: thunk(async (actions, id) => {
+    await axios.delete(`${APIv2.Links}/${id}`, getAxiosConfig());
+  }),
+  ban: thunk(async (actions, { id, ...payload }) => {
+    const res = await axios.post(
+      `${APIv2.Links}/admin/ban/${id}`,
+      payload,
+      getAxiosConfig()
+    );
+    actions.update({ id, banned: true });
+    return res.data;
+  }),
+  edit: thunk(async (actions, { id, ...payload }) => {
+    const res = await axios.patch(
+      `${APIv2.Links}/${id}`,
+      payload,
+      getAxiosConfig()
+    );
+    actions.update(res.data);
   }),
   add: action((state, payload) => {
-    state.items.pop();
+    if (state.items.length >= 10) {
+      state.items.pop();
+    }
     state.items.unshift(payload);
   }),
   set: action((state, payload) => {
-    state.items = payload.list;
-    state.total = payload.countAll;
+    state.items = payload.data;
+    state.total = payload.total;
+  }),
+  update: action((state, payload) => {
+    state.items = state.items.map(item =>
+      item.id === payload.id ? { ...item, ...payload } : item
+    );
   }),
   setLoading: action((state, payload) => {
     state.loading = payload;

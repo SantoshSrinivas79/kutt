@@ -1,19 +1,23 @@
+import { useFormState } from "react-use-form-state";
 import { Flex } from "reflexbox/styled-components";
 import React, { FC, useState } from "react";
 import styled from "styled-components";
+import getConfig from "next/config";
 
 import { useStoreState, useStoreActions } from "../../store";
-import { useFormState } from "react-use-form-state";
 import { Domain } from "../../store/settings";
+import { errorMessage } from "../../utils";
 import { useMessage } from "../../hooks";
+import Text, { H2, Span } from "../Text";
 import { Colors } from "../../consts";
-import TextInput from "../TextInput";
+import { TextInput } from "../Input";
 import { Button } from "../Button";
+import { Col } from "../Layout";
 import Table from "../Table";
 import Modal from "../Modal";
 import Icon from "../Icon";
-import Text, { H2, Span } from "../Text";
-import { Col } from "../Layout";
+
+const { publicRuntimeConfig } = getConfig();
 
 const Th = styled(Flex).attrs({ as: "th", py: 3, px: 3 })`
   font-size: 15px;
@@ -23,15 +27,15 @@ const Td = styled(Flex).attrs({ as: "td", py: 12, px: 3 })`
 `;
 
 const SettingsDomain: FC = () => {
-  const [modal, setModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [domainToDelete, setDomainToDelete] = useState<Domain>(null);
-  const [message, setMessage] = useMessage(2000);
-  const domains = useStoreState(s => s.settings.domains);
   const { saveDomain, deleteDomain } = useStoreActions(s => s.settings);
+  const [domainToDelete, setDomainToDelete] = useState<Domain>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const domains = useStoreState(s => s.settings.domains);
+  const [message, setMessage] = useMessage(2000);
+  const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState(false);
   const [formState, { label, text }] = useFormState<{
-    customDomain: string;
+    address: string;
     homepage: string;
   }>(null, { withIds: true });
 
@@ -55,12 +59,10 @@ const SettingsDomain: FC = () => {
 
   const onDelete = async () => {
     setDeleteLoading(true);
-    try {
-      await deleteDomain();
-      setMessage("Domain has been deleted successfully.", "green");
-    } catch (err) {
-      setMessage(err?.response?.data?.error || "Couldn't delete the domain.");
-    }
+    await deleteDomain(domainToDelete.id).catch(err =>
+      setMessage(errorMessage(err, "Couldn't delete the domain."))
+    );
+    setMessage("Domain has been deleted successfully.", "green");
     closeModal();
     setDeleteLoading(false);
   };
@@ -72,13 +74,14 @@ const SettingsDomain: FC = () => {
       </H2>
       <Text mb={3}>
         You can set a custom domain for your short URLs, so instead of{" "}
-        <b>kutt.it/shorturl</b> you can have <b>example.com/shorturl.</b>
+        <b>{publicRuntimeConfig.DEFAULT_DOMAIN}/shorturl</b> you can have{" "}
+        <b>example.com/shorturl.</b>
       </Text>
       <Text mb={4}>
         Point your domain A record to <b>192.64.116.170</b> then add the domain
         via form below:
       </Text>
-      {domains.length ? (
+      {domains.length > 0 && (
         <Table my={3} scrollWidth="550px">
           <thead>
             <tr>
@@ -89,9 +92,11 @@ const SettingsDomain: FC = () => {
           </thead>
           <tbody>
             {domains.map(d => (
-              <tr key={d.customDomain}>
-                <Td width={2 / 5}>{d.customDomain}</Td>
-                <Td width={2 / 5}>{d.homepage || "default"}</Td>
+              <tr key={d.address}>
+                <Td width={2 / 5}>{d.address}</Td>
+                <Td width={2 / 5}>
+                  {d.homepage || publicRuntimeConfig.DEFAULT_DOMAIN}
+                </Td>
                 <Td width={1 / 5} justifyContent="center">
                   <Icon
                     as="button"
@@ -113,56 +118,55 @@ const SettingsDomain: FC = () => {
             ))}
           </tbody>
         </Table>
-      ) : (
-        <Col
-          alignItems="flex-start"
-          onSubmit={onSubmit}
-          width={1}
-          as="form"
-          my={[3, 4]}
-        >
-          <Flex width={1} flexDirection={["column", "row"]}>
-            <Col mr={[0, 2]} mb={[3, 0]} flex="1 1 auto">
-              <Text
-                {...label("customDomain")}
-                as="label"
-                mb={[2, 3]}
-                fontSize={[15, 16]}
-                bold
-              >
-                Domain
-              </Text>
-              <TextInput
-                {...text("customDomain")}
-                placeholder="example.com"
-                maxWidth="240px"
-                required
-              />
-            </Col>
-            <Col ml={[0, 2]} flex="1 1 auto">
-              <Text
-                {...label("homepage")}
-                as="label"
-                mb={[2, 3]}
-                fontSize={[15, 16]}
-                bold
-              >
-                Homepage (optional)
-              </Text>
-              <TextInput
-                {...text("homepage")}
-                placeholder="Homepage URL"
-                flex="1 1 auto"
-                maxWidth="240px"
-              />
-            </Col>
-          </Flex>
-          <Button type="submit" color="purple" mt={[24, 3]} disabled={loading}>
-            <Icon name={loading ? "spinner" : "plus"} mr={2} stroke="white" />
-            {loading ? "Setting..." : "Set domain"}
-          </Button>
-        </Col>
       )}
+      <Col
+        alignItems="flex-start"
+        onSubmit={onSubmit}
+        width={1}
+        as="form"
+        my={[3, 4]}
+      >
+        <Flex width={1} flexDirection={["column", "row"]}>
+          <Col mr={[0, 2]} mb={[3, 0]} flex="0 0 auto">
+            <Text
+              {...label("address")}
+              as="label"
+              mb={[2, 3]}
+              fontSize={[15, 16]}
+              bold
+            >
+              Domain:
+            </Text>
+            <TextInput
+              {...text("address")}
+              placeholder="example.com"
+              maxWidth="240px"
+              required
+            />
+          </Col>
+          <Col ml={[0, 2]} flex="0 0 auto">
+            <Text
+              {...label("homepage")}
+              as="label"
+              mb={[2, 3]}
+              fontSize={[15, 16]}
+              bold
+            >
+              Homepage (optional):
+            </Text>
+            <TextInput
+              {...text("homepage")}
+              placeholder="Homepage URL"
+              flex="1 1 auto"
+              maxWidth="240px"
+            />
+          </Col>
+        </Flex>
+        <Button type="submit" color="purple" mt={[24, 3]} disabled={loading}>
+          <Icon name={loading ? "spinner" : "plus"} mr={2} stroke="white" />
+          {loading ? "Setting..." : "Set domain"}
+        </Button>
+      </Col>
       <Text color={message.color}>{message.text}</Text>
       <Modal id="delete-custom-domain" show={modal} closeHandler={closeModal}>
         <H2 mb={24} textAlign="center" bold>
@@ -170,7 +174,7 @@ const SettingsDomain: FC = () => {
         </H2>
         <Text textAlign="center">
           Are you sure do you want to delete the domain{" "}
-          <Span bold>"{domainToDelete && domainToDelete.customDomain}"</Span>?
+          <Span bold>"{domainToDelete && domainToDelete.address}"</Span>?
         </Text>
         <Flex justifyContent="center" mt={44}>
           {deleteLoading ? (

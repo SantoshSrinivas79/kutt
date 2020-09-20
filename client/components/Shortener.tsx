@@ -1,20 +1,22 @@
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { useFormState } from "react-use-form-state";
 import { Flex } from "reflexbox/styled-components";
 import React, { useState } from "react";
 import styled from "styled-components";
+import getConfig from "next/config";
 
 import { useStoreActions, useStoreState } from "../store";
+import { Checkbox, Select, TextInput } from "./Input";
 import { Col, RowCenterH, RowCenter } from "./Layout";
-import { useFormState } from "react-use-form-state";
-import { removeProtocol } from "../utils";
-import { Link } from "../store/links";
 import { useMessage, useCopy } from "../hooks";
-import TextInput from "./TextInput";
+import { removeProtocol } from "../utils";
+import Text, { H1, Span } from "./Text";
+import { Link } from "../store/links";
 import Animation from "./Animation";
 import { Colors } from "../consts";
-import Checkbox from "./Checkbox";
-import Text, { H1, Span } from "./Text";
 import Icon from "./Icon";
+
+const { publicRuntimeConfig } = getConfig();
 
 const SubmitIconWrapper = styled.div`
   content: "";
@@ -49,20 +51,27 @@ const ShortenedLink = styled(H1)`
 
 interface Form {
   target: string;
+  domain?: string;
   customurl?: string;
   password?: string;
+  description?: string;
+  expire_in?: string;
   showAdvanced?: boolean;
 }
 
+const defaultDomain = publicRuntimeConfig.DEFAULT_DOMAIN;
+
 const Shortener = () => {
   const { isAuthenticated } = useStoreState(s => s.auth);
-  const [domain] = useStoreState(s => s.settings.domains);
+  const domains = useStoreState(s => s.settings.domains);
   const submit = useStoreActions(s => s.links.submit);
   const [link, setLink] = useState<Link | null>(null);
   const [message, setMessage] = useMessage(3000);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useCopy();
-  const [formState, { raw, password, text, label }] = useFormState<Form>(
+  const [formState, { raw, password, text, select, label }] = useFormState<
+    Form
+  >(
     { showAdvanced: false },
     {
       withIds: true,
@@ -94,7 +103,11 @@ const Shortener = () => {
     setCopied(false);
     setLoading(true);
 
-    if (process.env.NODE_ENV === "production" && !isAuthenticated) {
+    if (
+      process.env.NODE_ENV === "production" &&
+      !!publicRuntimeConfig.RECAPTCHA_SITE_KEY &&
+      !isAuthenticated
+    ) {
       window.grecaptcha.execute(window.captchaId);
       const getCaptchaToken = () => {
         setTimeout(() => {
@@ -147,7 +160,7 @@ const Shortener = () => {
         </Animation>
       ) : (
         <Animation offset="-10px" duration="0.2s">
-          <CopyToClipboard text={link.shortLink} onCopy={setCopied}>
+          <CopyToClipboard text={link.link} onCopy={setCopied}>
             <Icon
               as="button"
               py={0}
@@ -163,9 +176,9 @@ const Shortener = () => {
           </CopyToClipboard>
         </Animation>
       )}
-      <CopyToClipboard text={link.shortLink} onCopy={setCopied}>
+      <CopyToClipboard text={link.link} onCopy={setCopied}>
         <ShortenedLink fontSize={[24, 26, 30]} pb="2px" light>
-          {removeProtocol(link.shortLink)}
+          {removeProtocol(link.link)}
         </ShortenedLink>
       </CopyToClipboard>
     </Animation>
@@ -234,54 +247,131 @@ const Shortener = () => {
         alignSelf="flex-start"
       />
       {formState.values.showAdvanced && (
-        <Flex mt={4} flexDirection={["column", "row"]}>
-          <Col mb={[3, 0]}>
-            <Text
-              as="label"
-              {...label("customurl")}
-              fontSize={[14, 15]}
-              mb={2}
-              bold
-            >
-              {(domain || {}).customDomain ||
-                (typeof window !== "undefined" && window.location.hostname)}
-              /
-            </Text>
-            <TextInput
-              {...text("customurl")}
-              placeholder="Custom address"
-              data-lpignore
-              pl={[3, 24]}
-              pr={[3, 24]}
-              placeholderSize={[13, 14]}
-              fontSize={[14, 15]}
-              height={[40, 44]}
-              width={[210, 240]}
-            />
-          </Col>
-          <Col ml={[0, 4]}>
-            <Text
-              as="label"
-              {...label("password")}
-              fontSize={[14, 15]}
-              mb={2}
-              bold
-            >
-              Password:
-            </Text>
-            <TextInput
-              {...password("password")}
-              placeholder="Password"
-              data-lpignore
-              pl={[3, 24]}
-              pr={[3, 24]}
-              placeholderSize={[13, 14]}
-              fontSize={[14, 15]}
-              height={[40, 44]}
-              width={[210, 240]}
-            />
-          </Col>
-        </Flex>
+        <div>
+          <Flex mt={4} flexDirection={["column", "row"]}>
+            <Col mb={[3, 0]}>
+              <Text
+                as="label"
+                {...label("domain")}
+                fontSize={[14, 15]}
+                mb={2}
+                bold
+              >
+                Domain:
+              </Text>
+              <Select
+                {...select("domain")}
+                data-lpignore
+                pl={[3, 24]}
+                pr={[3, 24]}
+                fontSize={[14, 15]}
+                height={[40, 44]}
+                width={[1, 210, 240]}
+                options={[
+                  { key: defaultDomain, value: "" },
+                  ...domains.map(d => ({
+                    key: d.address,
+                    value: d.address
+                  }))
+                ]}
+              />
+            </Col>
+            <Col mb={[3, 0]} ml={[0, 24]}>
+              <Text
+                as="label"
+                {...label("customurl")}
+                fontSize={[14, 15]}
+                mb={2}
+                bold
+              >
+                {formState.values.domain || defaultDomain}/
+              </Text>
+              <TextInput
+                {...text("customurl")}
+                placeholder="Custom address..."
+                autocomplete="off"
+                data-lpignore
+                pl={[3, 24]}
+                pr={[3, 24]}
+                placeholderSize={[13, 14]}
+                fontSize={[14, 15]}
+                height={[40, 44]}
+                width={[1, 210, 240]}
+              />
+            </Col>
+            <Col ml={[0, 24]}>
+              <Text
+                as="label"
+                {...label("password")}
+                fontSize={[14, 15]}
+                mb={2}
+                bold
+              >
+                Password:
+              </Text>
+              <TextInput
+                {...password("password")}
+                placeholder="Password..."
+                autocomplete="off"
+                data-lpignore
+                pl={[3, 24]}
+                pr={[3, 24]}
+                placeholderSize={[13, 14]}
+                fontSize={[14, 15]}
+                height={[40, 44]}
+                width={[1, 210, 240]}
+              />
+            </Col>
+          </Flex>
+          <Flex mt={[3]} flexDirection={["column", "row"]}>
+            <Col mb={[3, 0]}>
+              <Text
+                as="label"
+                {...label("expire_in")}
+                fontSize={[14, 15]}
+                mb={2}
+                bold
+              >
+                Expire in:
+              </Text>
+              <TextInput
+                {...text("expire_in")}
+                placeholder="2 minutes/hours/days"
+                data-lpignore
+                pl={[3, 24]}
+                pr={[3, 24]}
+                placeholderSize={[13, 14]}
+                fontSize={[14, 15]}
+                height={[40, 44]}
+                width={[1, 210, 240]}
+                maxWidth="100%"
+              />
+            </Col>
+            <Col width={[1, 2 / 3]} ml={[0, 26]}>
+              <Text
+                as="label"
+                {...label("description")}
+                fontSize={[14, 15]}
+                mb={2}
+                bold
+              >
+                Description:
+              </Text>
+              <TextInput
+                {...text("description")}
+                placeholder="Description"
+                data-lpignore
+                pl={[3, 24]}
+                pr={[3, 24]}
+                placeholderSize={[13, 14]}
+                fontSize={[14, 15]}
+                height={[40, 44]}
+                width={1}
+                maxWidth="100%"
+              />
+            </Col>
+          </Flex>
+        </div>
       )}
     </Col>
   );
