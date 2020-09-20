@@ -1,16 +1,20 @@
-import React, { useState } from "react";
-import axios from "axios";
 import { useFormState } from "react-use-form-state";
 import { Flex } from "reflexbox/styled-components";
+import React, { useState } from "react";
+import axios from "axios";
 
 import Text, { H2, Span } from "../components/Text";
 import AppWrapper from "../components/AppWrapper";
-import TextInput from "../components/TextInput";
+import { TextInput } from "../components/Input";
 import { Button } from "../components/Button";
 import { Col } from "../components/Layout";
 import Icon from "../components/Icon";
 import { useMessage } from "../hooks";
-import { API } from "../consts";
+import { APIv2 } from "../consts";
+
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
 
 const ReportPage = () => {
   const [formState, { text }] = useFormState<{ url: string }>();
@@ -22,7 +26,7 @@ const ReportPage = () => {
     setLoading(true);
     setMessage();
     try {
-      await axios.post(API.REPORT, { link: formState.values.url }); // TODO: better api calls
+      await axios.post(`${APIv2.Links}/report`, { link: formState.values.url });
       setMessage("Thanks for the report, we'll take actions shortly.", "green");
       formState.clear();
     } catch (error) {
@@ -43,7 +47,7 @@ const ReportPage = () => {
           or use the form. We will take actions shortly.
         </Text>
         <Text mb={4}>
-          {(process.env.REPORT_EMAIL || "").replace("@", "[at]")}
+          {(publicRuntimeConfig.REPORT_EMAIL || "").replace("@", "[at]")}
         </Text>
         <Text mb={3}>
           <Span bold>URL containing malware/scam:</Span>
@@ -57,7 +61,7 @@ const ReportPage = () => {
         >
           <TextInput
             {...text("url")}
-            placeholder="l.mypad.in/example"
+            placeholder={`${publicRuntimeConfig.DEFAULT_DOMAIN}/example`}
             height={[44, 54]}
             width={[1, 1 / 2]}
             flex="0 0 auto"

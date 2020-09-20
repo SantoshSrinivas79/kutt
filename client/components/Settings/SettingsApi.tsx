@@ -4,14 +4,15 @@ import React, { FC, useState } from "react";
 import styled from "styled-components";
 
 import { useStoreState, useStoreActions } from "../../store";
+import { useCopy, useMessage } from "../../hooks";
+import { errorMessage } from "../../utils";
+import { Colors } from "../../consts";
+import Animation from "../Animation";
 import { Button } from "../Button";
-import ALink from "../ALink";
-import Icon from "../Icon";
 import Text, { H2 } from "../Text";
 import { Col } from "../Layout";
-import { useCopy } from "../../hooks";
-import Animation from "../Animation";
-import { Colors } from "../../consts";
+import ALink from "../ALink";
+import Icon from "../Icon";
 
 const ApiKey = styled(Text).attrs({
   mt: [0, "2px"],
@@ -29,6 +30,7 @@ const ApiKey = styled(Text).attrs({
 
 const SettingsApi: FC = () => {
   const [copied, setCopied] = useCopy();
+  const [message, setMessage] = useMessage(1500);
   const [loading, setLoading] = useState(false);
   const apikey = useStoreState(s => s.settings.apikey);
   const generateApiKey = useStoreActions(s => s.settings.generateApiKey);
@@ -36,7 +38,7 @@ const SettingsApi: FC = () => {
   const onSubmit = async () => {
     if (loading) return;
     setLoading(true);
-    await generateApiKey();
+    await generateApiKey().catch(err => setMessage(errorMessage(err)));
     setLoading(false);
   };
 
@@ -50,11 +52,7 @@ const SettingsApi: FC = () => {
         get shortend URLs. If
         {" you're"} not familiar with API, {"don't"} generate the key. DO NOT
         share this key on the client side of your website.{" "}
-        <ALink
-          href="https://github.com/thedevs-network/kutt#api"
-          title="API Docs"
-          target="_blank"
-        >
+        <ALink href="https://docs.kutt.it" title="API Docs" target="_blank">
           Read API docs.
         </ALink>
       </Text>
@@ -100,6 +98,9 @@ const SettingsApi: FC = () => {
         <Icon name={loading ? "spinner" : "zap"} mr={2} stroke="white" />
         {loading ? "Generating..." : apikey ? "Regenerate" : "Generate"} key
       </Button>
+      <Text fontSize={15} mt={3} color={message.color}>
+        {message.text}
+      </Text>
     </Col>
   );
 };

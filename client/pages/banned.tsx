@@ -1,4 +1,4 @@
-import { Flex } from "reflexbox/styled-components";
+import getConfig from "next/config";
 import Link from "next/link";
 import React from "react";
 
@@ -7,6 +7,8 @@ import { H2, H4, Span } from "../components/Text";
 import Footer from "../components/Footer";
 import ALink from "../components/ALink";
 import { Col } from "../components/Layout";
+
+const { publicRuntimeConfig } = getConfig();
 
 const BannedPage = () => {
   return (
@@ -20,7 +22,8 @@ const BannedPage = () => {
           .
         </H2>
         <H4 textAlign="center" normal>
-          If you noticed a malware/scam link shortened by Kutt,{" "}
+          If you noticed a malware/scam link shortened by{" "}
+          {publicRuntimeConfig.SITE_NAME},{" "}
           <Link href="/report">
             <ALink title="Send report">send us a report</ALink>
           </Link>

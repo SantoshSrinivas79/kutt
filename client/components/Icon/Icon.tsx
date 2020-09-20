@@ -12,12 +12,14 @@ import PieChart from "./PieChart";
 import Refresh from "./Refresh";
 import Spinner from "./Spinner";
 import Shuffle from "./Shuffle";
+import EditAlt from "./EditAlt";
 import QRCode from "./QRCode";
 import Signup from "./Signup";
 import Trash from "./Trash";
 import Check from "./Check";
 import Login from "./Login";
 import Heart from "./Heart";
+import Stop from "./Stop";
 import Plus from "./Plus";
 import Lock from "./Lock";
 import Edit from "./Edit";
@@ -33,10 +35,10 @@ const icons = {
   chevronLeft: ChevronLeft,
   chevronRight: ChevronRight,
   clipboard: Clipboard,
-  shuffle: Shuffle,
   copy: Copy,
-  heart: Heart,
   edit: Edit,
+  editAlt: EditAlt,
+  heart: Heart,
   key: Key,
   lock: Lock,
   login: Login,
@@ -45,8 +47,10 @@ const icons = {
   qrcode: QRCode,
   refresh: Refresh,
   send: Send,
+  shuffle: Shuffle,
   signup: Signup,
   spinner: Spinner,
+  stop: Stop,
   trash: Trash,
   x: X,
   zap: Zap

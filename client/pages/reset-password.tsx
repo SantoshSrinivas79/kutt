@@ -9,14 +9,14 @@ import axios from "axios";
 
 import { useStoreState, useStoreActions } from "../store";
 import AppWrapper from "../components/AppWrapper";
-import TextInput from "../components/TextInput";
+import { TextInput } from "../components/Input";
 import { Button } from "../components/Button";
 import Text, { H2 } from "../components/Text";
 import { Col } from "../components/Layout";
 import { TokenPayload } from "../types";
 import { useMessage } from "../hooks";
 import Icon from "../components/Icon";
-import { API } from "../consts";
+import { API, APIv2 } from "../consts";
 
 interface Props {
   token?: string;
@@ -51,7 +51,7 @@ const ResetPassword: NextPage<Props> = ({ token }) => {
     setLoading(true);
     setMessage();
     try {
-      await axios.post(API.RESET_PASSWORD, {
+      await axios.post(APIv2.AuthResetPassword, {
         email: formState.values.email
       });
       setMessage("Reset password email has been sent.", "green");

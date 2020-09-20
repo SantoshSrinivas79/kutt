@@ -9,21 +9,20 @@ import Text, { H1, H2, H4, Span } from "../components/Text";
 import { getAxiosConfig, removeProtocol } from "../utils";
 import { Button, NavButton } from "../components/Button";
 import { Col, RowCenterV } from "../components/Layout";
-import { Area, Bar, Pie } from "../components/Charts";
+import { Area, Bar, Pie, Map } from "../components/Charts";
 import PageLoading from "../components/PageLoading";
 import AppWrapper from "../components/AppWrapper";
 import Divider from "../components/Divider";
+import { APIv2, Colors } from "../consts";
 import { useStoreState } from "../store";
 import ALink from "../components/ALink";
-import { API, Colors } from "../consts";
 import Icon from "../components/Icon";
 
 interface Props {
-  domain?: string;
   id?: string;
 }
 
-const StatsPage: NextPage<Props> = ({ domain, id }) => {
+const StatsPage: NextPage<Props> = ({ id }) => {
   const { isAuthenticated } = useStoreState(s => s.auth);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -35,7 +34,7 @@ const StatsPage: NextPage<Props> = ({ domain, id }) => {
   useEffect(() => {
     if (!id || !isAuthenticated) return;
     axios
-      .get(`${API.STATS}?id=${id}&domain=${domain}`, getAxiosConfig())
+      .get(`${APIv2.Links}/${id}/stats`, getAxiosConfig())
       .then(({ data }) => {
         setLoading(false);
         setError(!data);
@@ -83,8 +82,8 @@ const StatsPage: NextPage<Props> = ({ domain, id }) => {
             <Flex justifyContent="space-between" alignItems="center" mb={3}>
               <H1 fontSize={[18, 20, 24]} light>
                 Stats for:{" "}
-                <ALink href={data.shortLink} title="Short link">
-                  {removeProtocol(data.shortLink)}
+                <ALink href={data.link} title="Short link">
+                  {removeProtocol(data.link)}
                 </ALink>
               </H1>
               <Text fontSize={[13, 14]} textAlign="right">
@@ -174,7 +173,7 @@ const StatsPage: NextPage<Props> = ({ domain, id }) => {
                         <H2 mb={3} light>
                           Country.
                         </H2>
-                        <Pie data={stats.stats.country} />
+                        <Map data={stats.stats.country} />
                       </Col>
                       <Col flex="1 1 0">
                         <H2 mb={3} light>
@@ -208,7 +207,6 @@ StatsPage.getInitialProps = ({ query }) => {
 };
 
 StatsPage.defaultProps = {
-  domain: "",
   id: ""
 };
 
